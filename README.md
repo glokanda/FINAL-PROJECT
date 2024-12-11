@@ -1,8 +1,11 @@
-# React + Vite
+This DSA class project, I chose the Book Management system because it allows users to efficiently manage their personal book collections. This application is a complete full-stack CRUD (Create, Read, Update, Delete) system for managing books. It utilizes Node.js, Express.js, MongoDB, React, and Tailwind CSS to offer an intuitive interface for users to manage their book collection. I only uploaded the frontend part, which includes features for adding new books, viewing the list of books, editing existing book details, and removing books from the collection. This project not only enhances my coding skills but also helps me understand how different technologies work together to create a functional web application.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+All the data structure implementations can be found in the page folder.
 
-Currently, two official plugins are available:
+The CreateBooks component uses a custom Stack data structure to track and manage the history of book entries. When a book is saved, its details (title, author, and publish year) are added to the stack, and the "Undo" button allows users to revert to the last saved book by removing the most recent entry from the stack. This stack-based approach ensures efficient "undo" functionality with minimal complexity. It integrates smoothly with React using useState for state management and provides user feedback through snackbar notifications.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+The DeleteBook component uses a Queue data structure to manage delete tasks in a First In, First Out (FIFO) order. When a book is deleted, its ID is added to the queue, and the processQueue function handles the deletion one task at a time. This ensures that multiple delete requests are processed in the correct order without overlap. The queue is simple to use, with methods to add tasks (enqueue), remove them (dequeue), and check if it's empty. This structure ensures smooth task management, even if there are multiple delete actions.
+
+The  EditBook component is used to edit details of a book by fetching and updating its data via an API. It uses a Map as a hashmap-like structure to store book details (title, author, and publishYear). On component load, it fetches book data based on the id from the URL, stores it in the Map, and displays it in input fields. Users can edit the fields, and changes are saved using the Map.set method. On submitting, the data is sent to the server via an API call. Error and success messages are displayed using a snackbar. The component also includes a spinner to indicate loading states.
+
+The ShowBook component uses a Binary Search Tree (BST) to manage and display book IDs efficiently. When a book is fetched from the server, its ID is inserted into the BST, ensuring the IDs are always stored in sorted order. The inorderTraversal method of the BST is used to retrieve and display these IDs in ascending order. This approach simplifies organizing and searching through book IDs dynamically as data is fetched.
