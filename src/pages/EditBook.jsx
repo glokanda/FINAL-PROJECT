@@ -6,27 +6,24 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
 
 const EditBook = () => {
-  const [bookDetails, setBookDetails] = useState({
-    title: '',
-    author: '',
-    publishYear: ''
-  });
+  const [bookDetails, setBookDetails] = useState(new Map());
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { id } = useParams();
   const { enqueueSnackbar } = useSnackbar();
 
   useEffect(() => {
-    // Start loading state when fetching book details
     setLoading(true);
 
-    axios.get(`http://localhost:8080/books/${id}`)
+    axios
+      .get(`http://localhost:8080/books/${id}`)
       .then((response) => {
-        setBookDetails({
-          title: response.data.title,
-          author: response.data.author,
-          publishYear: response.data.publishYear
-        });
+        const bookData = new Map([
+          ['title', response.data.title],
+          ['author', response.data.author],
+          ['publishYear', response.data.publishYear],
+        ]);
+        setBookDetails(bookData);
         setLoading(false);
       })
       .catch((error) => {
@@ -34,16 +31,23 @@ const EditBook = () => {
         enqueueSnackbar('Unable to fetch book details. Please try again later.', { variant: 'error' });
         console.error(error);
       });
-  }, [id]); // Dependency on 'id' ensures the effect runs when 'id' changes
+  }, [id]);
 
   const handleEditBook = () => {
-    if (!bookDetails.title || !bookDetails.author || !bookDetails.publishYear) {
+    if (!bookDetails.get('title') || !bookDetails.get('author') || !bookDetails.get('publishYear')) {
       enqueueSnackbar('All fields are required', { variant: 'warning' });
       return;
     }
 
+    const bookData = {
+      title: bookDetails.get('title'),
+      author: bookDetails.get('author'),
+      publishYear: bookDetails.get('publishYear'),
+    };
+
     setLoading(true);
-    axios.put(`http://localhost:8080/books/${id}`, bookDetails)
+    axios
+      .put(`http://localhost:8080/books/${id}`, bookData)
       .then(() => {
         setLoading(false);
         enqueueSnackbar('Book Edited successfully', { variant: 'success' });
@@ -58,10 +62,11 @@ const EditBook = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setBookDetails((prevState) => ({
-      ...prevState,
-      [name]: value
-    }));
+    setBookDetails((prevState) => {
+      const updatedMap = new Map(prevState);
+      updatedMap.set(name, value);
+      return updatedMap;
+    });
   };
 
   return (
@@ -75,7 +80,7 @@ const EditBook = () => {
           <input
             type="text"
             name="title"
-            value={bookDetails.title}
+            value={bookDetails.get('title') || ''}
             onChange={handleInputChange}
             className="border-2 border-gray-500 px-4 py-2 w-full"
             placeholder="Enter book title"
@@ -86,7 +91,7 @@ const EditBook = () => {
           <input
             type="text"
             name="author"
-            value={bookDetails.author}
+            value={bookDetails.get('author') || ''}
             onChange={handleInputChange}
             className="border-2 border-gray-500 px-4 py-2 w-full"
             placeholder="Enter author's name"
@@ -97,7 +102,7 @@ const EditBook = () => {
           <input
             type="number"
             name="publishYear"
-            value={bookDetails.publishYear}
+            value={bookDetails.get('publishYear') || ''}
             onChange={handleInputChange}
             className="border-2 border-gray-500 px-4 py-2 w-full"
             placeholder="Enter publish year"
@@ -106,7 +111,7 @@ const EditBook = () => {
         <button 
           className="p-2 bg-sky-300 m-8"
           onClick={handleEditBook}
-          disabled={loading}  // Disable the button when loading
+          disabled={loading}
         >
           Save
         </button>
